@@ -15,10 +15,17 @@ async function bootstrap() {
   const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:3000')
     .split(',')
     .map((origin) => origin.trim())
+    .map((origin) => origin.replace(/\/+$/, ''))
     .filter(Boolean);
   app.enableCors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+      const normalizedOrigin = origin?.replace(/\/+$/, '');
+      const allowed =
+        !normalizedOrigin ||
+        allowedOrigins.includes(normalizedOrigin) ||
+        allowedOrigins.includes('*') ||
+        normalizedOrigin.endsWith('.vercel.app');
+      if (allowed) {
         callback(null, true);
         return;
       }
