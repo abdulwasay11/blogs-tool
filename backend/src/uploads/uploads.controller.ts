@@ -8,6 +8,11 @@ const EXT: Record<string, string> = {
   'image/png': '.png', 'image/jpeg': '.jpg', 'image/gif': '.gif', 'image/webp': '.webp', 'image/avif': '.avif',
 };
 
+type UploadedImage = {
+  filename: string;
+  mimetype: string;
+};
+
 @Controller('uploads')
 export class UploadsController {
   @Post()
@@ -22,7 +27,7 @@ export class UploadsController {
         EXT[file.mimetype] ? cb(null, true) : cb(new BadRequestException('Only PNG, JPEG, GIF, WebP or AVIF images'), false),
     }),
   )
-  upload(@UploadedFile() file: Express.Multer.File) {
+  upload(@UploadedFile() file: UploadedImage) {
     if (!file) throw new BadRequestException('No file received');
     const publicApiUrl = (process.env.PUBLIC_API_URL || 'http://localhost:4000').replace(/\/+$/, '');
     return { url: `${publicApiUrl}/uploads/${file.filename}` };
